@@ -875,6 +875,7 @@ const MySessions = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('MySessions component mounted, loading sessions...');
     loadMySessions();
   }, []);
 
@@ -882,8 +883,18 @@ const MySessions = () => {
     try {
       const response = await sessionAPI.getMySessions();
       setSessions(response.data.sessions || []);
+      setError(''); // Clear any previous errors
     } catch (error) {
-      setError('Failed to load your sessions');
+      console.error('Error loading sessions:', error);
+      
+      // For development: If backend is not available, show empty state instead of error
+      if (error.message.includes('fetch')) {
+        setSessions([]); // Set empty array when backend is not available
+        setError(''); // Don't show error for missing backend
+      } else {
+        setError('Failed to load your sessions');
+        setSessions([]);
+      }
     } finally {
       setLoading(false); // This ensures loading is set to false regardless of success/failure
     }
