@@ -948,6 +948,20 @@ const MySessions = () => {
           </div>
         )}
 
+        {drafts.length === 0 && published.length === 0 && (
+  <div className="text-center py-20 text-gray-600">
+    <p className="text-xl font-semibold">No sessions found.</p>
+    <p className="mt-2">Start by creating a new session.</p>
+    <Link
+      to="/editor"
+      className="mt-6 inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-all duration-200"
+    >
+      Create Session
+    </Link>
+  </div>
+)}
+
+
         {/* Drafts Section */}
         <div className="mb-12">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
