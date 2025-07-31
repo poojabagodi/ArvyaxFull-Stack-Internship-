@@ -33,7 +33,7 @@ app.use('/api', sessionRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
+  res.json({
     message: 'Wellness Platform API is running!',
     timestamp: new Date().toISOString()
   });
@@ -41,15 +41,15 @@ app.get('/health', (req, res) => {
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ 
-    error: 'Route not found' 
+  res.status(404).json({
+    error: 'Route not found'
   });
 });
 
 // Global error handler
 app.use((error, req, res, next) => {
   console.error('Global error handler:', error);
-  res.status(500).json({ 
+  res.status(500).json({
     error: 'Something went wrong!',
     ...(process.env.NODE_ENV === 'development' && { details: error.message })
   });
@@ -60,3 +60,4 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
+

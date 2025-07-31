@@ -6,8 +6,8 @@ const auth = async (req, res, next) => {
     // Get token from header
     const authHeader = req.header('Authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ 
-        error: 'Access denied. No token provided.' 
+      return res.status(401).json({
+        error: 'Access denied. No token provided.'
       });
     }
 
@@ -19,8 +19,8 @@ const auth = async (req, res, next) => {
     // Get user from database
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
-      return res.status(401).json({ 
-        error: 'Token is not valid.' 
+      return res.status(401).json({
+        error: 'Token is not valid.'
       });
     }
     
@@ -42,3 +42,23 @@ const auth = async (req, res, next) => {
 };
 
 module.exports = auth;
+
+// ========== config/db.js (Same as yours) ==========
+const mongoose = require('mongoose');
+
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
+  } catch (error) {
+    console.error('MongoDB connection error:', error);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+

@@ -1,90 +1,68 @@
+
+// ========== routes/auth.js ==========
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const auth = require('../middleware/auth');
 
 const router = express.Router();
 
-// Input validation helper
-const validateInput = (email, password) => {
-  const errors = [];
-  
-  if (!email || !email.trim()) {
-    errors.push('Email is required');
-  } else if (!/\S+@\S+\.\S+/.test(email)) {
-    errors.push('Please enter a valid email');
-  }
-  
-  if (!password || password.length < 6) {
-    errors.push('Password must be at least 6 characters');
-  }
-  
-  return errors;
-};
-
 // Generate JWT token
 const generateToken = (userId) => {
-  return jwt.sign(
-    { id: userId }, 
-    process.env.JWT_SECRET, 
-    { expiresIn: '7d' }
-  );
+  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
+  });
 };
 
 // @route   POST /api/auth/register
-// @desc    Register user
+// @desc    Register a new user
 // @access  Public
 router.post('/register', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Validate input
-    const errors = validateInput(email, password);
-    if (errors.length > 0) {
-      return res.status(400).json({ 
-        error: 'Validation failed', 
-        details: errors 
+
+    // Validation
+    if (!email || !password) {
+      return res.status(400).json({
+        error: 'Please provide email and password'
       });
     }
-    
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Password must be at least 6 characters long'
+      });
+    }
+
     // Check if user already exists
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ 
-        error: 'User with this email already exists' 
+      return res.status(400).json({
+        error: 'User already exists with this email'
       });
     }
-    
-    // Create new user
-    const user = new User({
-      email: email.toLowerCase(),
-      password
-    });
-    
+
+    // Create user
+    const user = new User({ email, password });
     await user.save();
-    
+
     // Generate token
     const token = generateToken(user._id);
-    
+
     res.status(201).json({
-      message: 'User registered successfully',
-      token,
-      user: { 
-        id: user._id, 
-        email: user.email 
+      data: {
+        token,
+        user: {
+          id: user._id,
+          email: user.email
+        }
       }
     });
-    
+
   } catch (error) {
     console.error('Registration error:', error);
-    
-    if (error.code === 11000) {
-      return res.status(400).json({ 
-        error: 'User with this email already exists' 
-      });
-    }
-    
-    res.status(500).json({ 
-      error: 'Server error during registration' 
+    res.status(500).json({
+      error: 'Server error during registration'
     });
   }
 });
@@ -95,46 +73,68 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    
-    // Validate input
+
+    // Validation
     if (!email || !password) {
-      return res.status(400).json({ 
-        error: 'Email and password are required' 
+      return res.status(400).json({
+        error: 'Please provide email and password'
       });
     }
-    
+
     // Find user
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ 
-        error: 'Invalid email or password' 
+      return res.status(401).json({
+        error: 'Invalid credentials'
       });
     }
-    
+
     // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(400).json({ 
-        error: 'Invalid email or password' 
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        error: 'Invalid credentials'
       });
     }
-    
+
     // Generate token
     const token = generateToken(user._id);
-    
+
     res.json({
-      message: 'Login successful',
-      token,
-      user: { 
-        id: user._id, 
-        email: user.email 
+      data: {
+        token,
+        user: {
+          id: user._id,
+          email: user.email
+        }
       }
     });
-    
+
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ 
-      error: 'Server error during login' 
+    res.status(500).json({
+      error: 'Server error during login'
+    });
+  }
+});
+
+// @route   GET /api/auth/me
+// @desc    Get current user
+// @access  Private
+router.get('/me', auth, async (req, res) => {
+  try {
+    res.json({
+      data: {
+        user: {
+          id: req.user._id,
+          email: req.user.email
+        }
+      }
+    });
+  } catch (error) {
+    console.error('Get user error:', error);
+    res.status(500).json({
+      error: 'Server error'
     });
   }
 });
