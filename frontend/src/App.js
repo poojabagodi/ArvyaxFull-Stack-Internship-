@@ -175,31 +175,36 @@ export const sessionAPI = {
   },
   
   publishSession: async (sessionData) => {
-    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-    const method = sessionData.id ? 'PUT' : 'POST';
-    const url = sessionData.id 
-      ? `${API_BASE}/api/sessions/${sessionData.id}`
-      : `${API_BASE}/api/sessions`;
-    
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        ...sessionData,
-        status: 'published'
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to publish session');
+    try {
+      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+      
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
+      // Use the correct backend route for publishing
+      const response = await fetch(`${API_BASE}/api/sessions/publish`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(sessionData)
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to publish session');
+      }
+      
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Publish session error:', error);
+      throw error;
     }
-    
-    const data = await response.json();
-    return { data: { session: data.session } };
   },
+  
   
   deleteSession: async (id) => {
     const token = JSON.parse(sessionStorage.getItem('user'))?.token;
