@@ -865,17 +865,20 @@ const Dashboard = () => {
 };
 
 // My Sessions Component
-// My Sessions Component - FIXED
+// My Sessions Component - NO LOADING
 const MySessions = () => {
+ 
   const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
+ 
   const [error, setError] = useState('');
   const [toast, setToast] = useState(null);
   const [selectedSession, setSelectedSession] = useState(null);
   const navigate = useNavigate();
 
+  
+  
   useEffect(() => {
-    console.log('MySessions component mounted, loading sessions...');
+  
     loadMySessions();
   }, []);
 
@@ -894,9 +897,10 @@ const MySessions = () => {
       } else {
         setError('Failed to load your sessions');
         setSessions([]);
+ 
+ 
       }
-    } finally {
-      setLoading(false); // This ensures loading is set to false regardless of success/failure
+ 
     }
   };
 
@@ -915,17 +919,7 @@ const MySessions = () => {
   const drafts = sessions.filter(s => s.status === 'draft');
   const published = sessions.filter(s => s.status === 'published');
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
-        <Navigation />
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
-        </div>
-      </div>
-    );
-  }
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-100">
       <Navigation />
