@@ -2,22 +2,223 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23a855f7'/><circle cx='50' cy='50' r='30' fill='%23ec4899'/><circle cx='50' cy='50' r='15' fill='white'/></svg>" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#a855f7" />
-    <meta
-      name="description"
-      content="Wellness Platform - Your journey to mindfulness and inner peace through yoga and meditation sessions"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Wellness">
+    
+    <!-- Primary Meta Tags -->
+    <title>Wellness - Find Your Inner Peace Through Mindfulness</title>
+    <meta name="title" content="Wellness - Find Your Inner Peace Through Mindfulness">
+    <meta name="description" content="Discover tranquility with guided meditation sessions, gentle yoga flows, and mindfulness practices. Create, share, and explore wellness content designed to nurture your mind, body, and spirit.">
+    <meta name="keywords" content="wellness, meditation, yoga, mindfulness, inner peace, relaxation, stress relief, mental health, guided meditation, yoga sessions">
+    <meta name="author" content="Wellness Platform">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wellness-find-your-inner-peace.onrender.com">
+    <meta property="og:title" content="Wellness - Find Your Inner Peace Through Mindfulness">
+    <meta property="og:description" content="Discover tranquility with guided meditation sessions, gentle yoga flows, and mindfulness practices. Your journey to wellness starts here.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=630&fit=crop&crop=center">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:site_name" content="Wellness Platform">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://wellness-find-your-inner-peace.onrender.com">
+    <meta property="twitter:title" content="Wellness - Find Your Inner Peace Through Mindfulness">
+    <meta property="twitter:description" content="Discover tranquility with guided meditation sessions, gentle yoga flows, and mindfulness practices. Your journey to wellness starts here.">
+    <meta property="twitter:image" content="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=630&fit=crop&crop=center">
+    
+    <!-- Preconnect to external resources -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <title>Wellness - Find Your Inner Peace</title>
+    <link rel="preconnect" href="https://images.unsplash.com">
+    <link rel="preconnect" href="https://www.youtube.com">
+    
+    <!-- Google Fonts - Inter for modern, clean typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Additional font for headings - Optional elegant serif -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Wellness Platform",
+      "description": "A comprehensive wellness platform for meditation, yoga, and mindfulness practices",
+      "url": "https://wellness-find-your-inner-peace.onrender.com",
+      "applicationCategory": "HealthApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "Wellness Platform"
+      }
+    }
+    </script>
+    
+    <!-- Favicon alternatives for different devices -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23a855f7'/><circle cx='50' cy='50' r='30' fill='%23ec4899'/><circle cx='50' cy='50' r='15' fill='white'/></svg>">
+    <link rel="icon" type="image/svg+xml" sizes="32x32" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23a855f7'/><circle cx='50' cy='50' r='30' fill='%23ec4899'/><circle cx='50' cy='50' r='15' fill='white'/></svg>">
+    <link rel="icon" type="image/svg+xml" sizes="16x16" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23a855f7'/><circle cx='50' cy='50' r='30' fill='%23ec4899'/><circle cx='50' cy='50' r='15' fill='white'/></svg>">
+    
+    <!-- Preload critical CSS (if you have external stylesheets) -->
+    <!-- <link rel="preload" href="/static/css/main.css" as="style" onload="this.onload=null;this.rel='stylesheet'"> -->
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    
+    <!-- Performance hints -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//images.unsplash.com">
+    <link rel="dns-prefetch" href="//www.youtube.com">
+    
+    <style>
+      /* Critical CSS for loading state */
+      body {
+        margin: 0;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+          'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #eef2ff 100%);
+        min-height: 100vh;
+      }
+      
+      /* Loading spinner styles */
+      .wellness-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #eef2ff 100%);
+        z-index: 9999;
+      }
+      
+      .wellness-spinner {
+        width: 60px;
+        height: 60px;
+        border: 4px solid #e5e7eb;
+        border-top: 4px solid #a855f7;
+        border-radius: 50%;
+        animation: wellness-spin 1s linear infinite;
+      }
+      
+      @keyframes wellness-spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .wellness-logo {
+        margin-bottom: 20px;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 32px;
+        font-weight: 800;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      }
+      
+      /* Hide content initially */
+      #root {
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+      }
+      
+      #root.loaded {
+        opacity: 1;
+      }
+    </style>
   </head>
   <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Inter, sans-serif;">
+        <h1 style="color: #a855f7; margin-bottom: 20px;">🧘‍♀️ Wellness Platform</h1>
+        <p style="color: #6b7280; font-size: 18px; margin-bottom: 30px;">
+          You need to enable JavaScript to experience the full wellness journey.
+        </p>
+        <p style="color: #9ca3af; font-size: 14px;">
+          Please enable JavaScript in your browser settings and refresh the page to access guided meditation sessions, yoga flows, and mindfulness practices.
+        </p>
+      </div>
+    </noscript>
+    
+    <!-- Loading screen -->
+    <div class="wellness-loader" id="wellness-loader">
+      <div style="text-align: center;">
+        <div class="wellness-logo">W</div>
+        <div class="wellness-spinner"></div>
+        <p style="margin-top: 20px; color: #6b7280; font-weight: 500;">Loading your wellness journey...</p>
+      </div>
+    </div>
+    
     <div id="root"></div>
+    
+    <script>
+      // Hide loader when React app loads
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loader = document.getElementById('wellness-loader');
+          const root = document.getElementById('root');
+          if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+              loader.style.display = 'none';
+              if (root) {
+                root.classList.add('loaded');
+              }
+            }, 300);
+          }
+        }, 1000); // Minimum loading time for smooth experience
+      });
+      
+      // Performance monitoring
+      if ('performance' in window) {
+        window.addEventListener('load', function() {
+          setTimeout(function() {
+            const perfData = performance.getEntriesByType('navigation')[0];
+            if (perfData) {
+              console.log('🧘‍♀️ Wellness app loaded in:', Math.round(perfData.loadEventEnd - perfData.fetchStart), 'ms');
+            }
+          }, 0);
+        });
+      }
+      
+      // Service Worker registration (uncomment when you have a service worker)
+      /*
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/sw.js')
+            .then(function(registration) {
+              console.log('SW registered: ', registration);
+            })
+            .catch(function(registrationError) {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+      */
+    </script>
   </body>
 </html>

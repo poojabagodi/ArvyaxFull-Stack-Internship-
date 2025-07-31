@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, us
 // ==========================================
 // MOCK API SERVICE (Replace with real API)
 // ==========================================
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE =  process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Mock data for default sessions
 const DEFAULT_SESSIONS = [
@@ -62,75 +62,160 @@ const DEFAULT_SESSIONS = [
   }
 ];
 
-// Mock API functions (replace with real API calls)
+
 export const authAPI = {
   register: async (userData) => {
-    // Simulate API call
-    return { data: { token: 'mock-token', user: { email: userData.email } } };
+    const response = await fetch(`${API_BASE}/api/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Registration failed');
+    }
+    
+    return await response.json();
   },
+  
   login: async (userData) => {
-    // Simulate API call
-    return { data: { token: 'mock-token', user: { email: userData.email } } };
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    if (!response.ok) {
+      throw new Error('Login failed');
+    }
+    
+    return await response.json();
   },
 };
 
+
+
 export const sessionAPI = {
   getPublicSessions: async () => {
-    // Return default sessions plus any user sessions
-    const userSessions = JSON.parse(sessionStorage.getItem('userSessions') || '[]');
-    const publishedUserSessions = userSessions.filter(s => s.status === 'published');
-    return { data: { sessions: [...DEFAULT_SESSIONS, ...publishedUserSessions] } };
+    const response = await fetch(`${API_BASE}/api/sessions/public`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch sessions');
+    }
+    
+    const data = await response.json();
+    return { data: { sessions: data.sessions || [] } };
   },
+  
   getMySessions: async () => {
-    const userSessions = JSON.parse(sessionStorage.getItem('userSessions') || '[]');
-    return { data: { sessions: userSessions } };
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    
+    const response = await fetch(`${API_BASE}/api/sessions/my`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch your sessions');
+    }
+    
+    const data = await response.json();
+    return { data: { sessions: data.sessions || [] } };
   },
+  
   getMySession: async (id) => {
-    const userSessions = JSON.parse(sessionStorage.getItem('userSessions') || '[]');
-    const session = userSessions.find(s => s._id === id);
-    return { data: { session } };
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    
+    const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to fetch session');
+    }
+    
+    const data = await response.json();
+    return { data: { session: data.session } };
   },
+  
   saveDraft: async (sessionData) => {
-    const userSessions = JSON.parse(sessionStorage.getItem('userSessions') || '[]');
-    const existingIndex = userSessions.findIndex(s => s._id === sessionData.id);
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    const method = sessionData.id ? 'PUT' : 'POST';
+    const url = sessionData.id 
+      ? `${API_BASE}/api/sessions/${sessionData.id}`
+      : `${API_BASE}/api/sessions`;
     
-    const session = {
-      _id: sessionData.id || `session-${Date.now()}`,
-      title: sessionData.title,
-      tags: sessionData.tags,
-      video_url: sessionData.video_url || '',
-      thumbnail: sessionData.thumbnail || '',
-      description: sessionData.description || '',
-      duration: sessionData.duration || '',
-      status: 'draft',
-      user_id: { email: 'Current User' },
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    if (existingIndex >= 0) {
-      userSessions[existingIndex] = { ...userSessions[existingIndex], ...session };
-    } else {
-      userSessions.push(session);
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...sessionData,
+        status: 'draft'
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to save draft');
     }
     
-    sessionStorage.setItem('userSessions', JSON.stringify(userSessions));
-    return { data: { session } };
+    const data = await response.json();
+    return { data: { session: data.session } };
   },
+  
   publishSession: async (sessionData) => {
-    const result = await sessionAPI.saveDraft({ ...sessionData, status: 'published' });
-    const userSessions = JSON.parse(sessionStorage.getItem('userSessions') || '[]');
-    const sessionIndex = userSessions.findIndex(s => s._id === result.data.session._id);
-    if (sessionIndex >= 0) {
-      userSessions[sessionIndex].status = 'published';
-      sessionStorage.setItem('userSessions', JSON.stringify(userSessions));
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    const method = sessionData.id ? 'PUT' : 'POST';
+    const url = sessionData.id 
+      ? `${API_BASE}/api/sessions/${sessionData.id}`
+      : `${API_BASE}/api/sessions`;
+    
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...sessionData,
+        status: 'published'
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to publish session');
     }
-    return result;
+    
+    const data = await response.json();
+    return { data: { session: data.session } };
   },
+  
   deleteSession: async (id) => {
-    const userSessions = JSON.parse(sessionStorage.getItem('userSessions') || '[]');
-    const filtered = userSessions.filter(s => s._id !== id);
-    sessionStorage.setItem('userSessions', JSON.stringify(filtered));
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    
+    const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to delete session');
+    }
+    
     return { data: { success: true } };
   },
 };
@@ -160,10 +245,13 @@ const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+
   const login = (token, userData) => {
-    sessionStorage.setItem('user', JSON.stringify(userData));
-    setUser(userData);
-  };
+  const userWithToken = { ...userData, token };
+  sessionStorage.setItem('user', JSON.stringify(userWithToken));
+  setUser(userWithToken);
+};
+
 
   const logout = () => {
     sessionStorage.removeItem('user');
@@ -411,7 +499,7 @@ const Login = () => {
 
     try {
       const response = await authAPI.login(formData);
-      login(response.data.token, response.data.user);
+      login(response.token, response.user); 
       navigate('/');
     } catch (error) {
       setError('Login failed');
@@ -519,11 +607,11 @@ const Register = () => {
     }
 
     try {
-      const response = await authAPI.register({
-        email: formData.email,
-        password: formData.password
-      });
-      login(response.data.token, response.data.user);
+     const response = await authAPI.register({
+  email: formData.email,
+  password: formData.password
+});
+      login(response.token, response.user); 
       navigate('/');
     } catch (error) {
       setError('Registration failed');
