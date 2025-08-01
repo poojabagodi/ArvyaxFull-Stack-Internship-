@@ -20,7 +20,7 @@ const getApiBaseUrl = () => {
   
   // Check if we're on Vercel or other deployment platforms
   if (window.location.hostname.includes('vercel.app')) {
-    return 'https://your-backend-url.onrender.com'; // Replace with your actual backend URL
+    return 'https://wellness-find-your-inner-peace.onrender.com'; // Replace with your actual backend URL
   }
   
   // Default to local development
