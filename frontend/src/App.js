@@ -13,20 +13,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, us
 
 // Determine the API base URL based on environment
 const getApiBaseUrl = () => {
-  // Check if we're in production (deployed frontend)
-  if (window.location.hostname === 'wellness-find-your-inner-peace.onrender.com') {
-    return 'https://wellness-find-your-inner-peace.onrender.com';
-  }
-  
-  // Check if we're on Vercel or other deployment platforms
-  if (window.location.hostname.includes('vercel.app')) {
-    return 'https://wellness-find-your-inner-peace.onrender.com'; // Replace with your actual backend URL
-  }
-  
-  // Default to local development
-  return process.env.REACT_APP_API_URL || 'http://localhost:5000';
+  // Always use your deployed backend
+  return 'https://wellness-find-your-inner-peace.onrender.com';
 };
-
 const API_BASE = getApiBaseUrl();
 
 // Enhanced error handling
@@ -44,21 +33,7 @@ const handleApiResponse = async (response) => {
   return await response.json();
 };
 
-// Check if backend is available
-const checkBackendHealth = async () => {
-  try {
-    const response = await fetch(`${API_BASE}/health`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    return response.ok;
-  } catch (error) {
-    console.warn('Backend health check failed:', error);
-    return false;
-  }
-};
+
 
 export const authAPI = {
   register: async (userData) => {
@@ -79,92 +54,41 @@ export const authAPI = {
   },
   
   login: async (userData) => {
-    try {
-      const response = await fetch(`${API_BASE}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData)
-      });
-      
-      return await handleApiResponse(response);
-    } catch (error) {
-      console.error('Login API error:', error);
-      throw error;
-    }
-  },
+  try {
+    console.log('Attempting login to:', `${API_BASE}/api/auth/login`);
+    console.log('Login data:', userData);
+    
+    const response = await fetch(`${API_BASE}/api/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData)
+    });
+    
+    const result = await handleApiResponse(response);
+    console.log('Login successful:', result);
+    return result;
+  } catch (error) {
+    console.error('Login failed with error:', error);
+    throw error;
+  }
+},
 };
 
 export const sessionAPI = {
-  getPublicSessions: async () => {
-    try {
-      // Check if backend is available
-      const isBackendAvailable = await checkBackendHealth();
-      if (!isBackendAvailable) {
-        console.warn('Backend not available, returning default sessions');
-        return { 
-          data: { 
-            sessions: [
-              {
-                _id: 'default-1',
-                title: 'Morning Mindfulness Meditation',
-                tags: ['meditation', 'morning', 'mindfulness'],
-                video_url: 'https://www.youtube.com/embed/ZToicYcHIOU',
-                thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225&fit=crop',
-                description: 'Start your day with peace and clarity through this guided morning meditation.',
-                duration: '10 min',
-                user_id: { email: 'Wellness Team' },
-                createdAt: new Date('2024-01-15'),
-                status: 'published',
-                isDefault: true
-              },
-              {
-                _id: 'default-2',
-                title: 'Gentle Yoga Flow for Beginners',
-                tags: ['yoga', 'beginner', 'gentle'],
-                video_url: 'https://www.youtube.com/embed/v7AYKMP6rOE',
-                thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=225&fit=crop',
-                description: 'A soothing yoga flow perfect for beginners to build flexibility and strength.',
-                duration: '20 min',
-                user_id: { email: 'Wellness Team' },
-                createdAt: new Date('2024-01-20'),
-                status: 'published',
-                isDefault: true
-              }
-            ]
-          } 
-        };
-      }
-
-      const response = await fetch(`${API_BASE}/api/sessions/public`);
-      const data = await handleApiResponse(response);
-      return { data: { sessions: data.sessions || [] } };
-    } catch (error) {
-      console.error('Get public sessions error:', error);
-      // Return default sessions as fallback
-      return { 
-        data: { 
-          sessions: [
-            {
-              _id: 'default-1',
-              title: 'Morning Mindfulness Meditation',
-              tags: ['meditation', 'morning', 'mindfulness'],
-              video_url: 'https://www.youtube.com/embed/ZToicYcHIOU',
-              thumbnail: 'https://plus.unsplash.com/premium_photo-1675827055668-2dae1b8ac181?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGVhY2V8ZW58MHx8MHx8fDA%3D',
-              description: 'Start your day with peace and clarity through this guided morning meditation.',
-              duration: '10 min',
-              user_id: { email: 'Wellness Team' },
-              createdAt: new Date('2024-01-15'),
-              status: 'published',
-              isDefault: true
-            }
-          ]
-        } 
-      };
-    }
-  },
-  
+ getPublicSessions: async () => {
+  try {
+    console.log('Fetching sessions from:', `${API_BASE}/api/sessions/public`);
+    const response = await fetch(`${API_BASE}/api/sessions/public`);
+    const data = await handleApiResponse(response);
+    console.log('Sessions received:', data);
+    return { data: { sessions: data.sessions || [] } };
+  } catch (error) {
+    console.error('Failed to get sessions from backend:', error);
+    throw new Error(`Backend connection failed: ${error.message}`);
+  }
+},  
   getMySessions: async () => {
     try {
       const token = JSON.parse(sessionStorage.getItem('user'))?.token;
@@ -1211,6 +1135,7 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
+ 
 
   if (loading) {
     return (
