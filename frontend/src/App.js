@@ -4,185 +4,251 @@ import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate, us
 // ==========================================
 // MOCK API SERVICE (Replace with real API)
 // ==========================================
-const API_BASE =  process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Updated API configuration for your React app
+// Replace the API_BASE and API functions in your paste.txt with this:
 
-// Mock data for default sessions
-const DEFAULT_SESSIONS = [
-  {
-    _id: 'default-1',
-    title: 'Morning Mindfulness Meditation',
-    tags: ['meditation', 'morning', 'mindfulness'],
-    video_url: 'https://www.youtube.com/embed/ZToicYcHIOU',
-    thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225&fit=crop',
-    description: 'Start your day with peace and clarity through this guided morning meditation.',
-    duration: '10 min',
-    user_id: { email: 'Wellness Team' },
-    createdAt: new Date('2024-01-15'),
-    status: 'published',
-    isDefault: true
-  },
-  {
-    _id: 'default-2',
-    title: 'Gentle Yoga Flow for Beginners',
-    tags: ['yoga', 'beginner', 'gentle'],
-    video_url: 'https://www.youtube.com/embed/v7AYKMP6rOE',
-    thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=225&fit=crop',
-    description: 'A soothing yoga flow perfect for beginners to build flexibility and strength.',
-    duration: '20 min',
-    user_id: { email: 'Wellness Team' },
-    createdAt: new Date('2024-01-20'),
-    status: 'published',
-    isDefault: true
-  },
-  {
-    _id: 'default-3',
-    title: 'Deep Breathing for Stress Relief',
-    tags: ['breathing', 'stress-relief', 'relaxation'],
-    video_url: 'https://www.youtube.com/embed/tybOi4hjZFQ',
-    thumbnail: 'https://images.unsplash.com/photo-1515375033182-a1d4b5b8c8f7?w=400&h=225&fit=crop',
-    description: 'Learn powerful breathing techniques to reduce stress and anxiety.',
-    duration: '8 min',
-    user_id: { email: 'Wellness Team' },
-    createdAt: new Date('2024-01-25'),
-    status: 'published',
-    isDefault: true
-  },
-  {
-    _id: 'default-4',
-    title: 'Evening Relaxation & Sleep Meditation',
-    tags: ['sleep', 'relaxation', 'evening'],
-    video_url: 'https://www.youtube.com/embed/aXItOY0sLRY',
-    thumbnail: 'https://images.unsplash.com/photo-1520637836862-4d197d17c23a?w=400&h=225&fit=crop',
-    description: 'Wind down with this peaceful meditation designed to prepare you for restful sleep.',
-    duration: '15 min',
-    user_id: { email: 'Wellness Team' },
-    createdAt: new Date('2024-02-01'),
-    status: 'published',
-    isDefault: true
+// ==========================================
+// API SERVICE CONFIGURATION
+// ==========================================
+
+// Determine the API base URL based on environment
+const getApiBaseUrl = () => {
+  // Check if we're in production (deployed frontend)
+  if (window.location.hostname === 'wellness-find-your-inner-peace.onrender.com') {
+    return 'https://wellness-find-your-inner-peace.onrender.com';
   }
-];
+  
+  // Check if we're on Vercel or other deployment platforms
+  if (window.location.hostname.includes('vercel.app')) {
+    return 'https://your-backend-url.onrender.com'; // Replace with your actual backend URL
+  }
+  
+  // Default to local development
+  return process.env.REACT_APP_API_URL || 'http://localhost:5000';
+};
 
+const API_BASE = getApiBaseUrl();
+
+// Enhanced error handling
+const handleApiResponse = async (response) => {
+  if (!response.ok) {
+    let errorMessage = 'Request failed';
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.error || errorData.message || `HTTP ${response.status}`;
+    } catch (e) {
+      errorMessage = `HTTP ${response.status} - ${response.statusText}`;
+    }
+    throw new Error(errorMessage);
+  }
+  return await response.json();
+};
+
+// Check if backend is available
+const checkBackendHealth = async () => {
+  try {
+    const response = await fetch(`${API_BASE}/health`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return response.ok;
+  } catch (error) {
+    console.warn('Backend health check failed:', error);
+    return false;
+  }
+};
 
 export const authAPI = {
   register: async (userData) => {
-    const response = await fetch(`${API_BASE}/api/auth/register`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData)
-    });
-    
-    if (!response.ok) {
-      throw new Error('Registration failed');
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      return await handleApiResponse(response);
+    } catch (error) {
+      console.error('Registration API error:', error);
+      throw error;
     }
-    
-    return await response.json();
   },
   
   login: async (userData) => {
-    const response = await fetch(`${API_BASE}/api/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(userData)
-    });
-    
-    if (!response.ok) {
-      throw new Error('Login failed');
+    try {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      return await handleApiResponse(response);
+    } catch (error) {
+      console.error('Login API error:', error);
+      throw error;
     }
-    
-    return await response.json();
   },
 };
 
-
-
 export const sessionAPI = {
   getPublicSessions: async () => {
-    const response = await fetch(`${API_BASE}/api/sessions/public`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch sessions');
+    try {
+      // Check if backend is available
+      const isBackendAvailable = await checkBackendHealth();
+      if (!isBackendAvailable) {
+        console.warn('Backend not available, returning default sessions');
+        return { 
+          data: { 
+            sessions: [
+              {
+                _id: 'default-1',
+                title: 'Morning Mindfulness Meditation',
+                tags: ['meditation', 'morning', 'mindfulness'],
+                video_url: 'https://www.youtube.com/embed/ZToicYcHIOU',
+                thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225&fit=crop',
+                description: 'Start your day with peace and clarity through this guided morning meditation.',
+                duration: '10 min',
+                user_id: { email: 'Wellness Team' },
+                createdAt: new Date('2024-01-15'),
+                status: 'published',
+                isDefault: true
+              },
+              {
+                _id: 'default-2',
+                title: 'Gentle Yoga Flow for Beginners',
+                tags: ['yoga', 'beginner', 'gentle'],
+                video_url: 'https://www.youtube.com/embed/v7AYKMP6rOE',
+                thumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=225&fit=crop',
+                description: 'A soothing yoga flow perfect for beginners to build flexibility and strength.',
+                duration: '20 min',
+                user_id: { email: 'Wellness Team' },
+                createdAt: new Date('2024-01-20'),
+                status: 'published',
+                isDefault: true
+              }
+            ]
+          } 
+        };
+      }
+
+      const response = await fetch(`${API_BASE}/api/sessions/public`);
+      const data = await handleApiResponse(response);
+      return { data: { sessions: data.sessions || [] } };
+    } catch (error) {
+      console.error('Get public sessions error:', error);
+      // Return default sessions as fallback
+      return { 
+        data: { 
+          sessions: [
+            {
+              _id: 'default-1',
+              title: 'Morning Mindfulness Meditation',
+              tags: ['meditation', 'morning', 'mindfulness'],
+              video_url: 'https://www.youtube.com/embed/ZToicYcHIOU',
+              thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225&fit=crop',
+              description: 'Start your day with peace and clarity through this guided morning meditation.',
+              duration: '10 min',
+              user_id: { email: 'Wellness Team' },
+              createdAt: new Date('2024-01-15'),
+              status: 'published',
+              isDefault: true
+            }
+          ]
+        } 
+      };
     }
-    
-    const data = await response.json();
-    return { data: { sessions: data.sessions || [] } };
   },
   
   getMySessions: async () => {
-    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-    
-    const response = await fetch(`${API_BASE}/api/sessions/my`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    try {
+      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+      if (!token) {
+        throw new Error('No authentication token found');
       }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch your sessions');
+
+      const response = await fetch(`${API_BASE}/api/sessions/my`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await handleApiResponse(response);
+      return { data: { sessions: data.sessions || [] } };
+    } catch (error) {
+      console.error('Get my sessions error:', error);
+      // Return empty array for graceful fallback
+      return { data: { sessions: [] } };
     }
-    
-    const data = await response.json();
-    return { data: { sessions: data.sessions || [] } };
   },
   
   getMySession: async (id) => {
-    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-    
-    const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    try {
+      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+      if (!token) {
+        throw new Error('No authentication token found');
       }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch session');
+
+      const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      const data = await handleApiResponse(response);
+      return { data: { session: data.session } };
+    } catch (error) {
+      console.error('Get session error:', error);
+      throw error;
     }
-    
-    const data = await response.json();
-    return { data: { session: data.session } };
   },
   
   saveDraft: async (sessionData) => {
-    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-    const method = sessionData.id ? 'PUT' : 'POST';
-    const url = sessionData.id 
-      ? `${API_BASE}/api/sessions/${sessionData.id}`
-      : `${API_BASE}/api/sessions`;
-    
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        ...sessionData,
-        status: 'draft'
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to save draft');
+    try {
+      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const method = sessionData.id ? 'PUT' : 'POST';
+      const url = sessionData.id 
+        ? `${API_BASE}/api/sessions/${sessionData.id}`
+        : `${API_BASE}/api/sessions`;
+      
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          ...sessionData,
+          status: 'draft'
+        })
+      });
+      
+      const data = await handleApiResponse(response);
+      return { data: { session: data.session } };
+    } catch (error) {
+      console.error('Save draft error:', error);
+      throw error;
     }
-    
-    const data = await response.json();
-    return { data: { session: data.session } };
   },
   
   publishSession: async (sessionData) => {
     try {
       const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-      
       if (!token) {
         throw new Error('No authentication token found');
       }
       
-      // Use the correct backend route for publishing
       const response = await fetch(`${API_BASE}/api/sessions/publish`, {
         method: 'POST',
         headers: {
@@ -192,38 +258,39 @@ export const sessionAPI = {
         body: JSON.stringify(sessionData)
       });
       
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to publish session');
-      }
-      
-      const data = await response.json();
-      return data;
+      return await handleApiResponse(response);
     } catch (error) {
       console.error('Publish session error:', error);
       throw error;
     }
   },
   
-  
   deleteSession: async (id) => {
-    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-    
-    const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    try {
+      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+      if (!token) {
+        throw new Error('No authentication token found');
       }
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete session');
+
+      const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      await handleApiResponse(response);
+      return { data: { success: true } };
+    } catch (error) {
+      console.error('Delete session error:', error);
+      throw error;
     }
-    
-    return { data: { success: true } };
   },
 };
+
+// Export the API base URL for debugging
+export { API_BASE };
 
 // ==========================================
 // AUTH CONTEXT
