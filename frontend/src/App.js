@@ -189,58 +189,55 @@ export const sessionAPI = {
   },
   
   getMySession: async (id) => {
-    try {
-      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
-
-      const response = await fetch(`${API_BASE}/api/sessions/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      const data = await handleApiResponse(response);
-      return { data: { session: data.session } };
-    } catch (error) {
-      console.error('Get session error:', error);
-      throw error;
+  try {
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    if (!token) {
+      throw new Error('No authentication token found');
     }
-  },
-  
-  saveDraft: async (sessionData) => {
-    try {
-      const token = JSON.parse(sessionStorage.getItem('user'))?.token;
-      if (!token) {
-        throw new Error('No authentication token found');
-      }
 
-      const method = sessionData.id ? 'PUT' : 'POST';
-      const url = sessionData.id 
-        ? `${API_BASE}/api/sessions/${sessionData.id}`
-        : `${API_BASE}/api/sessions`;
-      
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          ...sessionData,
-          status: 'draft'
-        })
-      });
-      
-      const data = await handleApiResponse(response);
-      return { data: { session: data.session } };
-    } catch (error) {
-      console.error('Save draft error:', error);
-      throw error;
+    // Changed from /api/sessions/${id} to /api/sessions/my/${id}
+    const response = await fetch(`${API_BASE}/api/sessions/my/${id}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const data = await handleApiResponse(response);
+    return { data: { session: data.session } };
+  } catch (error) {
+    console.error('Get session error:', error);
+    throw error;
+  }
+},
+ saveDraft: async (sessionData) => {
+  try {
+    const token = JSON.parse(sessionStorage.getItem('user'))?.token;
+    if (!token) {
+      throw new Error('No authentication token found');
     }
-  },
+
+    // Changed from /api/sessions to /api/sessions/draft
+    const response = await fetch(`${API_BASE}/api/sessions/draft`, {
+      method: 'POST', // Always POST for draft endpoint
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...sessionData,
+        status: 'draft'
+      })
+    });
+    
+    const data = await handleApiResponse(response);
+    return { data: { session: data.session } };
+  } catch (error) {
+    console.error('Save draft error:', error);
+    throw error;
+  }
+},
+
   
   publishSession: async (sessionData) => {
     try {
