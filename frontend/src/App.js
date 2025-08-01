@@ -151,7 +151,7 @@ export const sessionAPI = {
               title: 'Morning Mindfulness Meditation',
               tags: ['meditation', 'morning', 'mindfulness'],
               video_url: 'https://www.youtube.com/embed/ZToicYcHIOU',
-              thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225&fit=crop',
+              thumbnail: 'https://plus.unsplash.com/premium_photo-1675827055668-2dae1b8ac181?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cGVhY2V8ZW58MHx8MHx8fDA%3D',
               description: 'Start your day with peace and clarity through this guided morning meditation.',
               duration: '10 min',
               user_id: { email: 'Wellness Team' },
